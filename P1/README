@@ -1,0 +1,1 @@
+This project is to demonstrate how a finite atomaton works. It will read in  a file containing the description of the FA as well as the file containing The set of strings to be checked by the FA. It will write the results out to a file and has the option to minimize the automaton. 
