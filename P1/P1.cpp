@@ -39,6 +39,8 @@ Prototypes
 //**********************************************
 int checkNum(string);
 void splitAlpha(string, vector<char> &alph);
+void splitAccepting(string, vector<int> &acc);
+State initializeTrans(string);
 //**********************************************
 
 /***********************************************
@@ -46,8 +48,9 @@ Main function
 ************************************************/
 int main(int argc, char **argv)
 {
-vector<char> alphabet;			//to hold the input alphabet
-vector< vector<int> > transitions; 	//Transition table
+vector<char> alphabet;				//to hold the input alphabet
+vector<int> acceptingStates;		//to hold the accepting states. 
+vector<State> transitions; 			//Transition table
 vector<string> testStrings;			//the strings to be checked in the machine
 int NumStates,						//to hold the number of states in the FA
 	NumAcc,							//the number of accepting states there are
@@ -86,6 +89,7 @@ NumStates=checkNum(stateNum);
 NumTrans= NumStates * alphabet.size();
 NumAcc=checkNum(acceptingNum);
 getline(ifl, accepting);
+splitAccepting(accepting, acceptingStates);
 cout << alpha << endl;
 cout << NumStates << endl;
 cout << NumAcc << endl;
@@ -95,6 +99,7 @@ int i=0;
 while(i < NumTrans && !ifl.eof())
 	{
 	cout << temp << endl;
+	transitions.push_back(initializeTrans(temp));
 	getline(ifl, temp);
 	i++;
 	}
@@ -107,6 +112,8 @@ if (i!= NumTrans)
 	}
 ifl.close();
 ifl.clear();
+cout << "Machine Description Read." << endl;
+cout << "Reading in Strings to Check" << endl;
 
 //********************************************************************
 //		Read in Strings to be checked in the Machine
@@ -167,4 +174,94 @@ RETURNS: N/A
 		if (islower(alphaString[i]))
 			alph.push_back(alphaString[i]);
 		}
+	}
+
+void splitAccepting(string acceptString, vector<int> &acc)
+/*---------------------------------------------------------------------------------
+DESCRIPTION: Breaks the accepting state string into individual states
+PARAMETERS: 
+	acceptString: the string containing the accepting states
+	acc: a vector to store the states once broken apart
+RETURNS: N/A
+-----------------------------------------------------------------------------------*/
+	{
+	string temp;
+	for (int i=0; i < acceptString.size(); i++)
+		{
+		//make sure it's a valid character
+		if (!isspace(acceptString[i]) && !isdigit(acceptString[i]))
+			{
+			cout << "Invalid State Number. " << endl;
+			cout << "Offending character: " << acceptString[i] << endl;
+			cout << "Must be a digit. Aborthing." << endl;
+			exit(0);
+			}
+		//we know it's valid so find out if it's a digit	
+		if (isdigit(acceptString[i]))
+			temp += acceptString[i];
+		else
+			{
+			acc.push_back(atoi(temp.c_str()));
+			temp="";
+			}
+			
+		}
+		if (temp != "")
+		acc.push_back(atoi(temp.c_str()));
+		
+	}
+	
+State initializeTrans(string transition)
+/*---------------------------------------------------------------------------------
+DESCRIPTION: Breaks the transition string and stores in a State
+PARAMETERS: 
+	transition: the string containing the transition. 
+RETURNS: a state containing the transitions for the current state on a given input
+-----------------------------------------------------------------------------------*/
+	{
+	State transState;
+	string temp;
+	int start=0,
+		found,
+		state;
+		
+		//get current state
+		found=transition.find(" ");
+		temp=transition.substr(start, (found-start));
+		if (checkNum(temp)== -1)
+			{
+			cout << "Invalid Origin State" << endl;
+			cout << "Offending Transition " << transition << endl;
+			cout << "Aborting" << endl;
+			exit(0);
+			}
+		transState.setState(atoi(temp.c_str()));
+		
+		//get transition character
+		start = found + 1;
+		found=transition.find(" ", start);
+		temp=transition.substr(start, (found-start));
+		if (temp.size() !=1 || !islower(temp[0]))
+			{
+			cout << "Invalid Transition Character" << endl;
+			cout << "Offending Transition " << transition << endl;
+			cout << "Aborting" << endl;
+			exit(0);
+			}
+		transState.setSymb(temp[0]);
+		
+		// get the state the transition takes you to
+		start = found + 1;
+		temp= transition.substr(start, (transition.size()-1-start));
+		if (checkNum(temp)== -1)
+			{
+			cout << "Invalid Ending State" << endl;
+			cout << "Offending Transition " << transition << endl;
+			cout << "Aborting" << endl;
+			exit(0);
+			}
+		transState.setMove(atoi(temp.c_str()));
+		
+		return transState;
+		
 	}
