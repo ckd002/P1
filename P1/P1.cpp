@@ -41,6 +41,7 @@ int checkNum(string);
 void splitAlpha(string, vector<char> &alph);
 void splitAccepting(string, vector<int> &acc);
 State initializeTrans(string);
+void validateStrings(const vector<char> &alph, string input);
 //**********************************************
 
 /***********************************************
@@ -54,7 +55,8 @@ vector<State> transitions; 			//Transition table
 vector<string> testStrings;			//the strings to be checked in the machine
 int NumStates,						//to hold the number of states in the FA
 	NumAcc,							//the number of accepting states there are
-	NumTrans;						//number of characters in the alphabet
+	NumTrans,						//number of characters in the alphabet
+	currentState;					//numerical representation of which state you are currently in.
 string alpha,						//the string of the alphabet
 	   stateNum,					//string version of number of states
 	   acceptingNum,				//string version of number of accepting
@@ -128,10 +130,12 @@ getline(ifl, temp);
 while (ifl.good() && temp !="~")
 	{
 	cout << temp << endl;
+	validateStrings(alphabet,temp);
 	getline(ifl, temp);
 	}
 ifl.close();
 ifl.clear();
+cout << "Strings Read and Validated. Checking if they're in the language" << endl;
 }//end main
 
 int checkNum(string number)
@@ -264,4 +268,42 @@ RETURNS: a state containing the transitions for the current state on a given inp
 		
 		return transState;
 		
+	}
+	
+void validateStrings(const vector<char> &alph, string input)
+/*---------------------------------------------------------------------------------
+DESCRIPTION: Ensures that ever string contains valid characters
+PARAMETERS: 
+	 alph: the input alphabet
+	 input: the string to be checked
+RETURNS: N/A
+-----------------------------------------------------------------------------------*/
+	{
+	bool inAlpha;
+	for(int i=0; i< input.size(); i++)
+		{
+		inAlpha=false;
+		if(!islower(input[i]))
+			{
+			cout << "Invalid input string. Must contain a-z only." << endl;
+			cout << "Offending string: " << input << endl;
+			cout << "Aborting" << endl;
+			exit(0);
+			}
+		for (int j=0; j<alph.size(); j++)
+			{
+			if(input[i]==alph[j])
+				{
+				inAlpha=true;
+				break;
+				}
+			}
+		if (inAlpha==false)
+			{
+			cout << "Character not in alphabet." << endl;
+			cout << "Offending character: " << input[i] << endl;
+			cout << "Aborting" << endl;
+			exit(0);
+			}
+		}
 	}
