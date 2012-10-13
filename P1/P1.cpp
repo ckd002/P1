@@ -26,9 +26,9 @@ class State
 	void setState(int num){st=num;}
 	void setSymb(char s){symbol= s;}
 	void setMove(int num){moveto= num;}
-	int getState(){return st;}
-	char getSymb(){return symbol;}
-	int getMove(){return moveto;}
+	int getState() const {return st;}
+	char getSymb() const {return symbol;}
+	int getMove() const {return moveto;}
 	
 	};
 
@@ -42,6 +42,7 @@ void splitAlpha(string, vector<char> &alph);
 void splitAccepting(string, vector<int> &acc);
 State initializeTrans(string);
 void validateStrings(const vector<char> &alph, string input);
+int transverseAutomaton(string toCheck, const vector<State> &trans);
 //**********************************************
 
 /***********************************************
@@ -56,12 +57,13 @@ vector<string> testStrings;			//the strings to be checked in the machine
 int NumStates,						//to hold the number of states in the FA
 	NumAcc,							//the number of accepting states there are
 	NumTrans,						//number of characters in the alphabet
-	currentState;					//numerical representation of which state you are currently in.
+	finalState;						//numerical representation of which state you are currently in.
 string alpha,						//the string of the alphabet
 	   stateNum,					//string version of number of states
 	   acceptingNum,				//string version of number of accepting
 	   accepting,					//the string containing the accepting states
 	   temp;						//the temporary string for reading in
+bool accepted;						//whether the string was accepted or not
 ifstream ifl;						//to read in the files
 ofstream ofl;						//to write out to the files
 
@@ -131,6 +133,15 @@ while (ifl.good() && temp !="~")
 	{
 	cout << temp << endl;
 	validateStrings(alphabet,temp);
+	finalState=transverseAutomaton(temp, transitions);
+	accepted=false;
+	for(int p=0; p < acceptingStates.size(); p++)
+		if (finalState == acceptingStates[p])
+			accepted=true;
+	if (accepted==true)
+		cout << "PASS" << endl;
+	else
+		cout << "FAIL" << endl;
 	getline(ifl, temp);
 	}
 ifl.close();
@@ -256,7 +267,7 @@ RETURNS: a state containing the transitions for the current state on a given inp
 		
 		// get the state the transition takes you to
 		start = found + 1;
-		temp= transition.substr(start, (transition.size()-1-start));
+		temp= transition.substr(start, (transition.size()-start));
 		if (checkNum(temp)== -1)
 			{
 			cout << "Invalid Ending State" << endl;
@@ -265,6 +276,7 @@ RETURNS: a state containing the transitions for the current state on a given inp
 			exit(0);
 			}
 		transState.setMove(atoi(temp.c_str()));
+		cout << transState.getMove() << endl;
 		
 		return transState;
 		
@@ -306,4 +318,25 @@ RETURNS: N/A
 			exit(0);
 			}
 		}
+	}
+	
+int transverseAutomaton(string toCheck, const vector<State> &trans)
+	{
+	int state=0;
+	State currentState;
+	for(int i=0; i<toCheck.size(); i++)
+		{
+		currentState.setState(state);
+		currentState.setSymb(toCheck[i]);
+		for(int j=0; j<trans.size(); j++)
+			{
+			if(currentState.getState()==trans[j].getState() && 
+				currentState.getSymb()==trans[j].getSymb())
+				{
+				state=trans[j].getMove();
+				break;
+				}
+			}
+		}
+		return state;
 	}
