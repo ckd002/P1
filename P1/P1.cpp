@@ -43,6 +43,7 @@ void splitAccepting(string, vector<int> &acc);
 State initializeTrans(string);
 void validateStrings(const vector<char> &alph, string input);
 int transverseAutomaton(string toCheck, const vector<State> &trans);
+bool checkAccepting(int toCheck, const vector<int> &states);
 //**********************************************
 
 /***********************************************
@@ -50,14 +51,18 @@ Main function
 ************************************************/
 int main(int argc, char **argv)
 {
+vector< vector<int> > 	minTable;	//the minimization table
 vector<char> alphabet;				//to hold the input alphabet
-vector<int> acceptingStates;		//to hold the accepting states. 
+vector<int> acceptingStates;		//to hold the accepting states.
+vector<int> minCol;					//to hold a column of a minimization table
 vector<State> transitions; 			//Transition table
 vector<string> testStrings;			//the strings to be checked in the machine
 int NumStates,						//to hold the number of states in the FA
 	NumAcc,							//the number of accepting states there are
 	NumTrans,						//number of characters in the alphabet
-	finalState;						//numerical representation of which state you are currently in.
+	finalState,						//numerical representation of which state you are currently in.
+	check1,							//to see if a state is accepting
+	check2;							//to see if another state is accepting
 string alpha,						//the string of the alphabet
 	   stateNum,					//string version of number of states
 	   acceptingNum,				//string version of number of accepting
@@ -128,25 +133,66 @@ if(!ifl)
 	cout << "Bad input file: " << argv[1] <<endl;
 	exit(0);
 	}
+ofl.open(argv[3]);
+if(!ofl)
+	{
+	cout << "Bad output file: " << argv[1] <<endl;
+	exit(0);
+	}
 getline(ifl, temp);
 while (ifl.good() && temp !="~")
 	{
 	cout << temp << endl;
 	validateStrings(alphabet,temp);
 	finalState=transverseAutomaton(temp, transitions);
-	accepted=false;
-	for(int p=0; p < acceptingStates.size(); p++)
-		if (finalState == acceptingStates[p])
-			accepted=true;
+	accepted= checkAccepting(finalState, acceptingStates);
 	if (accepted==true)
-		cout << "PASS" << endl;
+		ofl << temp << " PASS" << endl;
 	else
-		cout << "FAIL" << endl;
+		ofl << temp << " FAIL" << endl;
 	getline(ifl, temp);
 	}
+ofl.close();
+ofl.clear();
 ifl.close();
 ifl.clear();
-cout << "Strings Read and Validated. Checking if they're in the language" << endl;
+cout << "Strings checked and results output to file" << endl;
+
+if(argc==4)
+	cout << "Program finished. Open output file to see results" << endl;
+else
+	{
+	cout << "Prepairing to minimize" << endl;
+	//initialize table
+	for(int i=0; i<(NumStates-1); i++)
+		{
+		for (int j= (NumStates-1-i); j>0; j--)
+			{
+			minCol.push_back(-1);
+			}
+		minTable.push_back(minCol);
+		minCol.clear();
+		}
+	//Put inital 1's into table	
+	for(int i=0; i<minTable.size(); i++)
+		for(int j=0; j<minTable[i].size(); j++)
+			{
+			check1=checkAccepting(i, acceptingStates);
+			check2=checkAccepting((j+i+1), acceptingStates);
+			if(check1 != check2)
+				minTable[i][j]=1;
+			}
+			
+	for(int i=0; i<minTable.size(); i++)
+		{
+		for(int j=0; j<minTable[i].size(); j++)
+			{
+			cout << minTable[i][j];
+			}
+		cout << endl;
+		}
+	}
+	
 }//end main
 
 int checkNum(string number)
@@ -276,7 +322,6 @@ RETURNS: a state containing the transitions for the current state on a given inp
 			exit(0);
 			}
 		transState.setMove(atoi(temp.c_str()));
-		cout << transState.getMove() << endl;
 		
 		return transState;
 		
@@ -339,4 +384,12 @@ int transverseAutomaton(string toCheck, const vector<State> &trans)
 			}
 		}
 		return state;
+	}
+
+bool checkAccepting(int toCheck, const vector<int> &states)
+	{
+	for(int p=0; p < states.size(); p++)
+		if (toCheck == states[p])
+			return true;
+	return false;
 	}
