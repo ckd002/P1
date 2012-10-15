@@ -1,0 +1,5 @@
+aab FAIL
+aabb FAIL
+aba FAIL
+abaa PASS
+ FAIL
