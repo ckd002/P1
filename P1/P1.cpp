@@ -64,7 +64,9 @@ int NumStates,						//to hold the number of states in the FA
 	finalState,						//numerical representation of which state you are currently in.
 	check1,							//to see if a state is accepting
 	check2,							//to see if another state is accepting
-	round=2;						//which round of checks you are on
+	round=2,						//which round of checks you are on
+	param1,							//to hold the first parameter once calclated
+	param2;							//to hold the second parameter once calclated
 string alpha,						//the string of the alphabet
 	   stateNum,					//string version of number of states
 	   acceptingNum,				//string version of number of accepting
@@ -200,24 +202,45 @@ else
 					{
 					check1=searchTransitions(i, 'a', transitions);
 					check2=searchTransitions((j+i+1), 'a', transitions);
-					cout << "CHECK1: " << check1 << endl;
-					cout << "CHECK2: " << check2 << endl;
-					cout << "NEW CHECK " << check2-i-1 << endl;
-					if(minTable[check1][check2-i-2] != -1)
+					if(check1>check2)
 						{
-						cout << "[" << check1 << "][" << check2-i-2 << "]" <<endl;
-						minTable[i][j]=round;
-						cellChanged=true;
+						param1=check2;
+						param2=check1-check2-1;
 						}
-					else
+					else	
 						{
-						check1=searchTransitions(i, 'b', transitions);
-						check2=searchTransitions((j+i+1), 'b', transitions);
-	
-						if(minTable[check1][check2-i-1] != -1)
+						param1=check1;
+						param2=check2-check1-1;
+						}
+					if (param1 > -1 && param2 > -1)
+						{
+						if(minTable[param1][param2] != -1)
 							{
 							minTable[i][j]=round;
 							cellChanged=true;
+							}
+						else
+							{
+							check1=searchTransitions(i, 'b', transitions);
+							check2=searchTransitions((j+i+1), 'b', transitions);
+							if(check1>check2)
+								{
+								param1=check2;
+								param2=check1-check2-1;
+								}
+							else	
+								{
+								param1=check1;
+								param2=check2-check1-1;
+								}
+							if (param1 >-1 && param2 >-1)
+								{
+								if(minTable[param1][param2] != -1)
+									{
+									minTable[i][j]=round;
+									cellChanged=true;
+									}
+								}
 							}
 						}
 					}
@@ -225,7 +248,6 @@ else
 			}
 		round++;
 		}
-		
 	for(int i=0; i<minTable.size(); i++)
 		{
 		for(int j=0; j<minTable[i].size(); j++)
@@ -234,6 +256,7 @@ else
 			}
 		cout << endl;
 		}
+	
 	}
 	
 }//end main
