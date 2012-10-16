@@ -53,6 +53,7 @@ Main function
 int main(int argc, char **argv)
 {
 vector< vector<int> > 	minTable;	//the minimization table
+vector< vector<int> >	minStates;	//the states of the minimized FA
 vector<char> alphabet;				//to hold the input alphabet
 vector<int> acceptingStates;		//to hold the accepting states.
 vector<int> minCol;					//to hold a column of a minimization table
@@ -66,14 +67,16 @@ int NumStates,						//to hold the number of states in the FA
 	check2,							//to see if another state is accepting
 	round=2,						//which round of checks you are on
 	param1,							//to hold the first parameter once calclated
-	param2;							//to hold the second parameter once calclated
+	param2,							//to hold the second parameter once calclated
+	state;							//the state we're checking
 string alpha,						//the string of the alphabet
 	   stateNum,					//string version of number of states
 	   acceptingNum,				//string version of number of accepting
 	   accepting,					//the string containing the accepting states
 	   temp;						//the temporary string for reading in
 bool accepted,						//whether the string was accepted or not
-	 cellChanged=false;				//whether a cell in minTable has been changed
+	 cellChanged=false, 			//whether a cell in minTable has been changed
+	 found=false;					//whether that # is equivalent to another state
 ifstream ifl;						//to read in the files
 ofstream ofl;						//to write out to the files
 
@@ -258,6 +261,60 @@ else
 		}
 	
 	}
+	for(int m=0; m< minTable.size(); m++)
+		{
+		found=false;
+		for(int g=0; g<minStates.size(); g++)
+			for(int h=0; h< minStates[g].size(); h++)
+				if(minStates[g][h]==m)
+					{
+					found=true;
+					break;
+					}
+		if(found==false)
+			{
+			minCol.push_back(m);
+			for (int n=0; n< minTable[m].size(); n++)
+				{
+				if(minTable[m][n] == -1)
+					{
+					minCol.push_back((n + m + 1));
+					}
+				}
+			minStates.push_back(minCol);
+			minCol.clear();
+			}
+		}
+	//to catch the last state that doesn't have a column in the table
+	found=false;
+	for(int g=0; g<minStates.size(); g++)
+		for(int h=0; h< minStates[g].size(); h++)
+			if(minStates[g][h]==NumStates-1)
+				found=true;
+	if(found==false)
+		{
+		minCol.push_back(NumStates-1);
+		minStates.push_back(minCol);
+		}
+
+	
+	
+		for(int i=0; i<minStates.size(); i++)
+			{
+			for (int j=0; j< minStates[i].size(); j++)
+				cout << minStates[i][j] <<  " ";
+			cout << endl;
+			}
+	cout << "Writing Minimized FA to file" << endl;
+	ofl.open(argv[4]);
+	if(!ofl)
+		{
+		cout << "Bad output file: " << argv[1] <<endl;
+		exit(0);
+		}
+	ofl << alpha << endl;
+	ofl.close();
+	ofl.clear();
 	
 }//end main
 
