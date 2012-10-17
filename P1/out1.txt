@@ -3,3 +3,5 @@ aabb PASS
 aba PASS
 abaa FAIL
  FAIL
+baaa FAIL
+babbbbbbbbbbb FAIL

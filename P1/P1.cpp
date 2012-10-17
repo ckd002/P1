@@ -107,15 +107,10 @@ NumTrans= NumStates * alphabet.size();
 NumAcc=checkNum(acceptingNum);
 getline(ifl, accepting);
 splitAccepting(accepting, acceptingStates);
-cout << alpha << endl;
-cout << NumStates << endl;
-cout << NumAcc << endl;
-cout << accepting << endl;
 getline(ifl, temp);
 int i=0;
 while(i < NumTrans && !ifl.eof())
 	{
-	cout << temp << endl;
 	transitions.push_back(initializeTrans(temp));
 	getline(ifl, temp);
 	i++;
@@ -150,7 +145,6 @@ if(!ofl)
 getline(ifl, temp);
 while (ifl.good() && temp !="~")
 	{
-	cout << temp << endl;
 	validateStrings(alphabet,temp);
 	finalState=transverseAutomaton(temp, transitions);
 	accepted= checkAccepting(finalState, acceptingStates);
@@ -167,7 +161,10 @@ ifl.clear();
 cout << "Strings checked and results output to file" << endl;
 
 if(argc==4)
-	cout << "Program finished. Open output file to see results" << endl;
+	cout << "Open output file to see results" << endl;
+//********************************************************************
+//		User Chose to minimize, so do minimization
+//********************************************************************
 else
 	{
 	cout << "Prepairing to minimize" << endl;
@@ -193,7 +190,7 @@ else
 				cellChanged=true;
 				}
 			}
-		
+	//Do subsuquent iterations till no more changes occur	
 	while(cellChanged)
 		{
 		cellChanged=false;
@@ -251,6 +248,7 @@ else
 			}
 		round++;
 		}
+	//combine the states
 	for(int m=0; m< minTable.size(); m++)
 		{
 		found=false;
@@ -298,6 +296,9 @@ else
 			cout << endl;
 			}
 	cout << "Writing Minimized FA to file" << endl;
+//********************************************************************
+//		Output the minimized FA to a file
+//********************************************************************
 	ofl.open(argv[4]);
 	if(!ofl)
 		{
@@ -308,19 +309,25 @@ else
 	ofl << minStates.size() << endl;
 	
 	int count=0;
+	minCol.clear();
 	for(int r=0; r<minStates.size(); r++)
 		for(int s=0; s<minStates[r].size(); s++)
 			for(int t=0; t<acceptingStates.size(); t++)
 				if(minStates[r][s]==acceptingStates[t])
 					{
-					ofl << r << " ";
+					minCol.push_back(r);
 					count++;
 					r++;
 					break;
 					}
-	ofl << endl;
 	ofl << count << endl;
-	
+	for(int i=0; i<minCol.size(); i++)
+		{
+		ofl << minCol[i];
+		if(i < minCol.size())
+			ofl << " ";
+		}
+	ofl << endl;
 	vector<int> statesHolder;
 	for(int w=0; w<minStates.size(); w++)
 		{
@@ -342,7 +349,7 @@ else
 	ofl.clear();
 	}
 	
-	
+cout << "Program Complete" << endl;	
 }//end main
 
 int checkNum(string number)
