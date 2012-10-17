@@ -45,6 +45,7 @@ void validateStrings(const vector<char> &alph, string input);
 int transverseAutomaton(string toCheck, const vector<State> &trans);
 bool checkAccepting(int toCheck, const vector<int> &states);
 int searchTransitions(int current, char sigma, const vector<State> &trans);
+int findStates(int checkNum, const vector< vector<int> > &stateTable);
 //**********************************************
 
 /***********************************************
@@ -67,8 +68,7 @@ int NumStates,						//to hold the number of states in the FA
 	check2,							//to see if another state is accepting
 	round=2,						//which round of checks you are on
 	param1,							//to hold the first parameter once calclated
-	param2,							//to hold the second parameter once calclated
-	state;							//the state we're checking
+	param2;							//to hold the second parameter once calclated
 string alpha,						//the string of the alphabet
 	   stateNum,					//string version of number of states
 	   acceptingNum,				//string version of number of accepting
@@ -328,36 +328,15 @@ else
 		check1=searchTransitions(minStates[w][0], 'a', transitions);
 		check2=searchTransitions(minStates[w][0], 'b', transitions);
 				
-		for(int d=0; d<2; d++)
-			{
-			ofl << w;
-			if(d==0)
-				{
-				ofl << " a ";
-				for (int y=0; y<minStates.size(); y++)
-					{
-					for(int z=0; z<minStates[y].size();z++)
-						if(minStates[y][z]==check1)
-							{
-							ofl << y << endl;
-							break;
-							}
-					}
-				}
-			else
-				{
-				ofl << " b ";
-				for (int y=0; y<minStates.size(); y++)
-					{
-					for(int z=0; z<minStates[y].size();z++)
-						if(minStates[y][z]==check2)
-							{
-							ofl << y << endl;
-							break;
-							}
-					}
-				}
-			}
+		//output the transition on an a
+		ofl << w;
+		ofl << " a ";
+		ofl << findStates(check1, minStates) << endl;
+		
+		//output the transition on a b
+		ofl << w;
+		ofl << " b ";
+		ofl << findStates(check2, minStates) << endl;
 		}
 	ofl.close();
 	ofl.clear();
@@ -596,4 +575,19 @@ RETURNS: the state you will move to
 		}
 	return -1;
 		
+	}
+	
+int findStates(int checkNum, const vector< vector<int> > &stateTable)
+/*---------------------------------------------------------------------------------
+DESCRIPTION: find the new index of that set of states
+PARAMETERS: 
+	 checkNum: one of the states to find the set
+	 stateTable: the table containing the grouped states
+RETURNS: the index for the set of states
+-----------------------------------------------------------------------------------*/	
+	{	
+	for (int y=0; y<stateTable.size(); y++)
+		for(int z=0; z<stateTable[y].size();z++)
+			if(stateTable[y][z]==checkNum)
+				return y;
 	}
