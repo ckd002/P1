@@ -251,16 +251,6 @@ else
 			}
 		round++;
 		}
-	for(int i=0; i<minTable.size(); i++)
-		{
-		for(int j=0; j<minTable[i].size(); j++)
-			{
-			cout << minTable[i][j];
-			}
-		cout << endl;
-		}
-	
-	}
 	for(int m=0; m< minTable.size(); m++)
 		{
 		found=false;
@@ -296,11 +286,15 @@ else
 		minCol.push_back(NumStates-1);
 		minStates.push_back(minCol);
 		}
-
+	cout << "Minimization Complete! New States and what they are equivalent to." << endl;
 		for(int i=0; i<minStates.size(); i++)
 			{
 			for (int j=0; j< minStates[i].size(); j++)
+				{
+				if(j==0)
+					cout << i << ": ";
 				cout << minStates[i][j] <<  " ";
+				}
 			cout << endl;
 			}
 	cout << "Writing Minimized FA to file" << endl;
@@ -319,13 +313,7 @@ else
 			for(int t=0; t<acceptingStates.size(); t++)
 				if(minStates[r][s]==acceptingStates[t])
 					{
-					for(int u=0; u<minStates[r].size(); u++)
-						{
-						ofl << minStates[r][u];
-						if(u<minStates[r].size()-1)
-							ofl << ",";
-						}
-					ofl << " ";
+					ofl << r << " ";
 					count++;
 					r++;
 					break;
@@ -339,17 +327,10 @@ else
 		statesHolder.clear();
 		check1=searchTransitions(minStates[w][0], 'a', transitions);
 		check2=searchTransitions(minStates[w][0], 'b', transitions);
-		for(int v=0; v<minStates[w].size(); v++)
-			statesHolder.push_back(minStates[w][v]);
-		
+				
 		for(int d=0; d<2; d++)
 			{
-			for(int e=0; e<statesHolder.size(); e++)
-				{
-				ofl << statesHolder[e];
-				if(e < statesHolder.size()-1)
-					ofl << ",";
-				}
+			ofl << w;
 			if(d==0)
 				{
 				ofl << " a ";
@@ -358,20 +339,8 @@ else
 					for(int z=0; z<minStates[y].size();z++)
 						if(minStates[y][z]==check1)
 							{
-							for(int x=0; x<minStates[y].size(); x++)
-								{
-								ofl << minStates[y][x];
-								if(x < minStates[y].size()-1)
-									ofl << ",";
-								found=true;
-								}
-							if(found==true)
-								{
-								ofl << endl;
-								break;
-								}
-							if(found==true)
-								break;
+							ofl << y << endl;
+							break;
 							}
 					}
 				}
@@ -383,20 +352,8 @@ else
 					for(int z=0; z<minStates[y].size();z++)
 						if(minStates[y][z]==check2)
 							{
-							for(int x=0; x<minStates[y].size(); x++)
-								{
-								ofl << minStates[y][x];
-								if(x < minStates[y].size()-1)
-									ofl << ",";
-								found=true;
-								}
-							if(found==true)
-								{
-								ofl << endl;
-								break;
-								}
-							if(found==true)
-								break;
+							ofl << y << endl;
+							break;
 							}
 					}
 				}
@@ -404,6 +361,8 @@ else
 		}
 	ofl.close();
 	ofl.clear();
+	}
+	
 	
 }//end main
 
@@ -578,6 +537,13 @@ RETURNS: N/A
 	}
 	
 int transverseAutomaton(string toCheck, const vector<State> &trans)
+/*---------------------------------------------------------------------------------
+DESCRIPTION: Travels across the automaton based on the input strign
+PARAMETERS: 
+	 toCheck: the string to use for the transversal
+	 trans: the transition table
+RETURNS: the state number in which you end
+-----------------------------------------------------------------------------------*/
 	{
 	int state=0;
 	State currentState;
@@ -599,6 +565,13 @@ int transverseAutomaton(string toCheck, const vector<State> &trans)
 	}
 
 bool checkAccepting(int toCheck, const vector<int> &states)
+/*---------------------------------------------------------------------------------
+DESCRIPTION: check if a state is accepting
+PARAMETERS: 
+	 toCheck: the state to check
+	 states: the vector containing the accepting states
+RETURNS: whether or not the state is accepting.
+-----------------------------------------------------------------------------------*/
 	{
 	for(int p=0; p < states.size(); p++)
 		if (toCheck == states[p])
@@ -607,6 +580,14 @@ bool checkAccepting(int toCheck, const vector<int> &states)
 	}
 	
 int searchTransitions(int current, char sigma, const vector<State> &trans)
+/*---------------------------------------------------------------------------------
+DESCRIPTION: look through transition table to determine the next state
+PARAMETERS: 
+	 current: the state you are in
+	 sigma: the transition symbol
+	 trans: the transition table
+RETURNS: the state you will move to
+-----------------------------------------------------------------------------------*/
 	{
 	for (int x=0; x<trans.size(); x++)
 		{
