@@ -297,8 +297,6 @@ else
 		minStates.push_back(minCol);
 		}
 
-	
-	
 		for(int i=0; i<minStates.size(); i++)
 			{
 			for (int j=0; j< minStates[i].size(); j++)
@@ -313,6 +311,97 @@ else
 		exit(0);
 		}
 	ofl << alpha << endl;
+	ofl << minStates.size() << endl;
+	
+	int count=0;
+	for(int r=0; r<minStates.size(); r++)
+		for(int s=0; s<minStates[r].size(); s++)
+			for(int t=0; t<acceptingStates.size(); t++)
+				if(minStates[r][s]==acceptingStates[t])
+					{
+					for(int u=0; u<minStates[r].size(); u++)
+						{
+						ofl << minStates[r][u];
+						if(u<minStates[r].size()-1)
+							ofl << ",";
+						}
+					ofl << " ";
+					count++;
+					r++;
+					break;
+					}
+	ofl << endl;
+	ofl << count << endl;
+	
+	vector<int> statesHolder;
+	for(int w=0; w<minStates.size(); w++)
+		{
+		statesHolder.clear();
+		check1=searchTransitions(minStates[w][0], 'a', transitions);
+		check2=searchTransitions(minStates[w][0], 'b', transitions);
+		for(int v=0; v<minStates[w].size(); v++)
+			statesHolder.push_back(minStates[w][v]);
+		
+		for(int d=0; d<2; d++)
+			{
+			for(int e=0; e<statesHolder.size(); e++)
+				{
+				ofl << statesHolder[e];
+				if(e < statesHolder.size()-1)
+					ofl << ",";
+				}
+			if(d==0)
+				{
+				ofl << " a ";
+				for (int y=0; y<minStates.size(); y++)
+					{
+					for(int z=0; z<minStates[y].size();z++)
+						if(minStates[y][z]==check1)
+							{
+							for(int x=0; x<minStates[y].size(); x++)
+								{
+								ofl << minStates[y][x];
+								if(x < minStates[y].size()-1)
+									ofl << ",";
+								found=true;
+								}
+							if(found==true)
+								{
+								ofl << endl;
+								break;
+								}
+							if(found==true)
+								break;
+							}
+					}
+				}
+			else
+				{
+				ofl << " b ";
+				for (int y=0; y<minStates.size(); y++)
+					{
+					for(int z=0; z<minStates[y].size();z++)
+						if(minStates[y][z]==check2)
+							{
+							for(int x=0; x<minStates[y].size(); x++)
+								{
+								ofl << minStates[y][x];
+								if(x < minStates[y].size()-1)
+									ofl << ",";
+								found=true;
+								}
+							if(found==true)
+								{
+								ofl << endl;
+								break;
+								}
+							if(found==true)
+								break;
+							}
+					}
+				}
+			}
+		}
 	ofl.close();
 	ofl.clear();
 	
